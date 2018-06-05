@@ -13,7 +13,7 @@
 </template>
 
 <script>
-	import InfiniteLoading from '../dist/vue-infinite-pull';
+	import InfiniteLoading from 'vue-infinite-pull';
 	export default {
 		name: 'App',
 		components: {
