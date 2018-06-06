@@ -579,6 +579,10 @@ var ERRORS = {
     forceUseInfiniteWrapper: null,
     target_class: {
       type: String
+    },
+    showSpinner: {
+      type: Boolean,
+      default: false
     }
   },
   mounted: function mounted() {
@@ -720,11 +724,15 @@ var ERRORS = {
     * @return {Number}     distance
     */
     getCurrentDistance: function getCurrentDistance() {
-      var distance = void 0;
-      var infiniteElmOffsetTopFromBottom = document.querySelector('.' + this.target_class).getBoundingClientRect().bottom;
-      var scrollElmOffsetTopFromBottom = window.innerHeight;
-      distance = infiniteElmOffsetTopFromBottom - scrollElmOffsetTopFromBottom;
-      return distance;
+      var _this3 = this;
+
+      var getDistance = function getDistance(target) {
+        var infiniteElmOffsetTopFromBottom = document.querySelector('.' + _this3.target_class).getBoundingClientRect().bottom;
+        var scrollElmOffsetTopFromBottom = window.innerHeight;
+        return infiniteElmOffsetTopFromBottom - scrollElmOffsetTopFromBottom;
+      };
+      var target = document.querySelector('.' + this.target_class);
+      return target ? getDistance() : 99999999;
     },
 
     /**
@@ -849,7 +857,7 @@ var SPINNERS = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_InfinitePull_vue__ = __webpack_require__(3);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_484255e1_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_bb4b242e_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__ = __webpack_require__(13);
 function injectStyle (ssrContext) {
   __webpack_require__(6)
 }
@@ -864,12 +872,12 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-484255e1"
+var __vue_scopeId__ = "data-v-bb4b242e"
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_InfinitePull_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_484255e1_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_bb4b242e_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -890,7 +898,7 @@ var content = __webpack_require__(7);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(1)("5e4b412c", content, true, {});
+var update = __webpack_require__(1)("3cb1363f", content, true, {});
 
 /***/ }),
 /* 7 */
@@ -901,7 +909,7 @@ exports = module.exports = __webpack_require__(0)(false);
 
 
 // module
-exports.push([module.i, ".infinite-loading-container[data-v-484255e1]{clear:both;text-align:center}.infinite-loading-container[data-v-484255e1] [class^=loading-]{display:inline-block;margin:15px 0;width:28px;height:28px;font-size:28px;line-height:28px;border-radius:50%}.infinite-status-prompt[data-v-484255e1]{color:#666;font-size:14px;text-align:center;padding:10px 0}", ""]);
+exports.push([module.i, ".infinite-loading-container[data-v-bb4b242e]{clear:both;text-align:center}.infinite-loading-container[data-v-bb4b242e] [class^=loading-]{display:inline-block;margin:15px 0;width:28px;height:28px;font-size:28px;line-height:28px;border-radius:50%}.infinite-status-prompt[data-v-bb4b242e]{color:#666;font-size:14px;text-align:center;padding:10px 0}", ""]);
 
 // exports
 
@@ -1018,7 +1026,7 @@ var esExports = { render: render, staticRenderFns: staticRenderFns }
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"infinite-loading-container"},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.isLoading),expression:"isLoading"}]},[_vm._t("spinner",[_c('spinner',{attrs:{"spinner":_vm.spinner}})])],2),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.isNoResults),expression:"isNoResults"}],staticClass:"infinite-status-prompt"},[_vm._t("no-results",[_vm._v("No results :(")])],2),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.isNoMore),expression:"isNoMore"}],staticClass:"infinite-status-prompt"},[_vm._t("no-more",[_vm._v("No more data :)")])],2)])}
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"infinite-loading-container"},[_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.isLoading && _vm.showSpinner),expression:"isLoading && showSpinner"}]},[_vm._t("spinner",[_c('spinner',{attrs:{"spinner":_vm.spinner}})])],2),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.isNoResults),expression:"isNoResults"}],staticClass:"infinite-status-prompt"},[_vm._t("no-results",[_vm._v("No results :(")])],2),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.isNoMore),expression:"isNoMore"}],staticClass:"infinite-status-prompt"},[_vm._t("no-more",[_vm._v("No more data :)")])],2)])}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ __webpack_exports__["a"] = (esExports);
