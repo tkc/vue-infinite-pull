@@ -1,6 +1,6 @@
 <template>
   <div class="infinite-loading-container">
-    <div v-show="isLoading">
+    <div v-show="isLoading && showSpinner">
       <slot name="spinner">
         <spinner :spinner="spinner" />
       </slot>
@@ -109,6 +109,10 @@
       forceUseInfiniteWrapper: null,
        target_class: {
         type: String,
+      },
+      showSpinner: {
+        type: Boolean,
+        default: false,
       },
     },
     mounted() {
@@ -243,11 +247,13 @@
       * @return {Number}     distance
       */
       getCurrentDistance() {
-        let distance;
-        const infiniteElmOffsetTopFromBottom = document.querySelector(`\.${this.target_class}`).getBoundingClientRect().bottom;
-        const scrollElmOffsetTopFromBottom =  window.innerHeight;
-        distance = infiniteElmOffsetTopFromBottom - scrollElmOffsetTopFromBottom;
-        return distance;
+      	const getDistance = target =>{
+      	  const infiniteElmOffsetTopFromBottom = document.querySelector(`\.${this.target_class}`).getBoundingClientRect().bottom;
+          const scrollElmOffsetTopFromBottom =  window.innerHeight;
+          return (infiniteElmOffsetTopFromBottom - scrollElmOffsetTopFromBottom);
+      	}
+        const target = document.querySelector(`\.${this.target_class}`);
+        return target ? getDistance() : 99999999;
       },
       /**
       * get the first scroll parent of an element

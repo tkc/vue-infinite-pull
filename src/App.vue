@@ -4,7 +4,7 @@
       <div class="target">
         <p class="example-list-item" v-for="item in list" v-text="item"></p>
       </div>
-      <InfiniteLoading @infinite="infiniteHandler" target_class="target" ref="infiniteLoading">
+      <InfiniteLoading @infinite="infiniteHandler" target_class="target" spinner="false" ref="infiniteLoading">
         <span slot="no-results"></span>
         <span slot="no-more"></span>
       </InfiniteLoading>
@@ -13,7 +13,7 @@
 </template>
 
 <script>
-	import InfiniteLoading from 'vue-infinite-pull';
+    import InfiniteLoading from './components/InfinitePull.vue';
 	export default {
 		name: 'App',
 		components: {
