@@ -209,9 +209,6 @@
       attemptLoad(isContinuousCall) {
         const currentDistance = this.getCurrentDistance();
 
-        console.log('currentDistance=>'+currentDistance);
-        console.log('distance=>'+this.distance);
-
         if (!this.isComplete && currentDistance <= this.distance && (this.$el.offsetWidth + this.$el.offsetHeight) > 0) {
 
           this.isLoading = true;
