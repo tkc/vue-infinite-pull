@@ -591,93 +591,93 @@ var ERRORS = {
   mounted: function mounted() {
     var _this = this;
 
-    var init = function init() {
+    var setIntervalId = setInterval(findTargetElement, 1000);
+    var self = this;
+    function findTargetElement() {
+      var wrap = document.querySelector('.' + self.wrap_class);
+      var target = document.querySelector('.' + self.target_class);
+      if (wrap && target) {
+        self.scrollParent = self.getScrollParent();
+        self.scrollParent.addEventListener('scroll', self.scrollHandler);
+        clearInterval(setIntervalId);
+      }
+    }
 
-      var setIntervalId = setInterval(findTargetElement, 1000);
-      var selef = _this;
-      function findTargetElement() {
-        var wrap = document.querySelector('.' + selef.wrap_class);
-        var target = document.querySelector('.' + selef.target_class);
-        if (wrap && target) {
-          selef.scrollParent = selef.getScrollParent();
-          selef.scrollParent.addEventListener('scroll', selef.scrollHandler);
-          clearInterval(setIntervalId);
+    this.scrollHandler = function scrollHandlerOriginal(ev) {
+      if (!this.isLoading) {
+        clearTimeout(this.debounceTimer);
+        if (ev && ev.constructor === Event) {
+          this.debounceTimer = setTimeout(this.attemptLoad, this.debounceDuration);
+        } else {
+          this.attemptLoad();
         }
       }
+    }.bind(this);
 
-      _this.scrollHandler = function scrollHandlerOriginal(ev) {
-        if (!this.isLoading) {
-          clearTimeout(this.debounceTimer);
-          if (ev && ev.constructor === Event) {
-            this.debounceTimer = setTimeout(this.attemptLoad, this.debounceDuration);
-          } else {
-            this.attemptLoad();
-          }
-        }
-      }.bind(_this);
+    setTimeout(this.scrollHandler, 1);
 
-      setTimeout(_this.scrollHandler, 1);
+    this.$on('$InfiniteLoading:loaded', function (ev) {
+      _this.isFirstLoad = false;
+      if (_this.isLoading) {
+        _this.$nextTick(_this.attemptLoad.bind(null, true));
+      }
+      if (!ev || ev.target !== _this) {
+        console.warn(WARNINGS.STATE_CHANGER);
+      }
+    });
 
-      _this.$on('$InfiniteLoading:loaded', function (ev) {
-        _this.isFirstLoad = false;
-        if (_this.isLoading) {
-          _this.$nextTick(_this.attemptLoad.bind(null, true));
-        }
-        if (!ev || ev.target !== _this) {
-          console.warn(WARNINGS.STATE_CHANGER);
-        }
+    this.$on('$InfiniteLoading:complete', function (ev) {
+      _this.isLoading = false;
+      _this.isComplete = true;
+      // force re-complation computed properties to fix the problem of get slot text delay
+      _this.$nextTick(function () {
+        _this.$forceUpdate();
       });
-
-      _this.$on('$InfiniteLoading:complete', function (ev) {
-        _this.isLoading = false;
-        _this.isComplete = true;
-        // force re-complation computed properties to fix the problem of get slot text delay
-        _this.$nextTick(function () {
-          _this.$forceUpdate();
-        });
+      if (_this.scrollParent) {
         _this.scrollParent.removeEventListener('scroll', _this.scrollHandler);
-        if (!ev || ev.target !== _this) {
-          console.warn(WARNINGS.STATE_CHANGER);
-        }
-      });
-
-      _this.$on('$InfiniteLoading:reset', function () {
-        _this.isLoading = false;
-        _this.isComplete = false;
-        _this.isFirstLoad = true;
-        _this.scrollParent.addEventListener('scroll', _this.scrollHandler);
-        setTimeout(_this.scrollHandler, 1);
-      });
-
-      if (_this.onInfinite) {
-        console.warn(WARNINGS.INFINITE_EVENT);
       }
+      if (!ev || ev.target !== _this) {
+        console.warn(WARNINGS.STATE_CHANGER);
+      }
+    });
 
-      /**
-      * change state for this component, pass to the callback
-      */
-      _this.stateChanger = {
-        loaded: function loaded() {
-          return _this.$emit('$InfiniteLoading:loaded', { target: _this });
-        },
-        complete: function complete() {
-          return _this.$emit('$InfiniteLoading:complete', { target: _this });
-        },
-        reset: function reset() {
-          return _this.$emit('$InfiniteLoading:reset', { target: _this });
-        }
-      };
+    this.$on('$InfiniteLoading:reset', function () {
+      _this.isLoading = false;
+      _this.isComplete = false;
+      _this.isFirstLoad = true;
+      if (_this.scrollParent) {
+        _this.scrollParent.addEventListener('scroll', _this.scrollHandler);
+      }
+      setTimeout(_this.scrollHandler, 1);
+    });
 
-      /**
-      * watch for the
-      force-use-infinite-wrapper
-      property
-      */
-      _this.$watch('forceUseInfiniteWrapper', function () {
-        return _this.scrollParent = _this.getScrollParent();
-      });
+    if (this.onInfinite) {
+      console.warn(WARNINGS.INFINITE_EVENT);
+    }
+
+    /**
+    * change state for this component, pass to the callback
+    */
+    this.stateChanger = {
+      loaded: function loaded() {
+        return _this.$emit('$InfiniteLoading:loaded', { target: _this });
+      },
+      complete: function complete() {
+        return _this.$emit('$InfiniteLoading:complete', { target: _this });
+      },
+      reset: function reset() {
+        return _this.$emit('$InfiniteLoading:reset', { target: _this });
+      }
     };
-    init();
+
+    /**
+    * watch for the
+    force-use-infinite-wrapper
+    property
+    */
+    this.$watch('forceUseInfiniteWrapper', function () {
+      return _this.scrollParent = _this.getScrollParent();
+    });
   },
 
   /**
@@ -702,7 +702,6 @@ var ERRORS = {
       var _this2 = this;
 
       var currentDistance = this.getCurrentDistance();
-      console.log(currentDistance);
       if (!this.isComplete && currentDistance <= this.distance && this.$el.offsetWidth + this.$el.offsetHeight > 0) {
 
         this.isLoading = true;
@@ -864,7 +863,7 @@ var SPINNERS = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_InfinitePull_vue__ = __webpack_require__(3);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_29024a75_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_5f79aa08_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__ = __webpack_require__(13);
 function injectStyle (ssrContext) {
   __webpack_require__(6)
 }
@@ -879,12 +878,12 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-29024a75"
+var __vue_scopeId__ = "data-v-5f79aa08"
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_InfinitePull_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_29024a75_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_5f79aa08_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -905,7 +904,7 @@ var content = __webpack_require__(7);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(1)("87e097a0", content, true, {});
+var update = __webpack_require__(1)("0cd83e37", content, true, {});
 
 /***/ }),
 /* 7 */
@@ -916,7 +915,7 @@ exports = module.exports = __webpack_require__(0)(false);
 
 
 // module
-exports.push([module.i, ".infinite-loading-container[data-v-29024a75]{clear:both;text-align:center}.infinite-loading-container[data-v-29024a75] [class^=loading-]{display:inline-block;margin:15px 0;width:28px;height:28px;font-size:28px;line-height:28px;border-radius:50%}.infinite-status-prompt[data-v-29024a75]{color:#666;font-size:14px;text-align:center;padding:10px 0}", ""]);
+exports.push([module.i, ".infinite-loading-container[data-v-5f79aa08]{clear:both;text-align:center}.infinite-loading-container[data-v-5f79aa08] [class^=loading-]{display:inline-block;margin:15px 0;width:28px;height:28px;font-size:28px;line-height:28px;border-radius:50%}.infinite-status-prompt[data-v-5f79aa08]{color:#666;font-size:14px;text-align:center;padding:10px 0}", ""]);
 
 // exports
 

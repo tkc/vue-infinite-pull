@@ -119,16 +119,14 @@
       },
     },
     mounted() {
-      const init = () =>{
-
       	const setIntervalId = setInterval(findTargetElement, 1000);
-      	const selef = this;
+      	const self = this;
       	function findTargetElement() {
-      		const wrap = document.querySelector(`\.${selef.wrap_class}`);
-            const target = document.querySelector(`\.${selef.target_class}`);
+      		const wrap = document.querySelector(`\.${self.wrap_class}`);
+            const target = document.querySelector(`\.${self.target_class}`);
       		if(wrap && target) {
-      			selef.scrollParent = selef.getScrollParent();
-      			selef.scrollParent.addEventListener('scroll', selef.scrollHandler);
+      			self.scrollParent = self.getScrollParent();
+      			self.scrollParent.addEventListener('scroll', self.scrollHandler);
       			clearInterval(setIntervalId);
       		}
       	}
@@ -163,7 +161,9 @@
           this.$nextTick(() => {
             this.$forceUpdate();
           });
-          this.scrollParent.removeEventListener('scroll', this.scrollHandler);
+          if(this.scrollParent){
+            this.scrollParent.removeEventListener('scroll', this.scrollHandler);
+          }
           if (!ev || ev.target !== this) {
             console.warn(WARNINGS.STATE_CHANGER);
           }
@@ -173,7 +173,9 @@
           this.isLoading = false;
           this.isComplete = false;
           this.isFirstLoad = true;
-          this.scrollParent.addEventListener('scroll', this.scrollHandler);
+          if(this.scrollParent){
+            this.scrollParent.addEventListener('scroll', this.scrollHandler);
+          }
           setTimeout(this.scrollHandler, 1);
         });
 
@@ -196,8 +198,6 @@
 		property
         */
         this.$watch('forceUseInfiniteWrapper', () => this.scrollParent = this.getScrollParent());
-      };
-      init();
     },
     /**
      * To adapt to keep-alive feature, but only work on Vue 2.2.0 and above, see: https://vuejs.org/v2/api/#keep-alive
@@ -218,7 +218,6 @@
       */
       attemptLoad(isContinuousCall) {
         const currentDistance = this.getCurrentDistance();
-        console.log(currentDistance);
         if (!this.isComplete && currentDistance <= this.distance && (this.$el.offsetWidth + this.$el.offsetHeight) > 0) {
 
           this.isLoading = true;
