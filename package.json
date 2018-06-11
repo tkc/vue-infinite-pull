@@ -18,8 +18,7 @@
     "clean-webpack-plugin": "^0.1.19",
     "eslint-friendly-formatter": "^4.0.1",
     "vue": "^2.5.2",
-    "vue-infinite-pull": "git://github.com/tkc/vue-infinite-pull.git",
-    "wait-for-element": "^1.0.2"
+    "vue-infinite-pull": "git://github.com/tkc/vue-infinite-pull.git#1.0.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

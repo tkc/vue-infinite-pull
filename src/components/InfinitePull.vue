@@ -15,7 +15,6 @@
 </template>
 
 <script>
-	import waitForElement from 'wait-for-element';
 	/* eslint-disable no-console */
 	import Spinner from './Spinner';
 	const LOOP_CHECK_TIMEOUT = 1000; // the timeout for check infinite loop
@@ -121,7 +120,19 @@
     },
     mounted() {
       const init = () =>{
-        this.scrollParent = this.getScrollParent();
+
+      	const setIntervalId = setInterval(findTargetElement, 1000);
+      	const selef = this;
+      	function findTargetElement() {
+      		const wrap = document.querySelector(`\.${selef.wrap_class}`);
+            const target = document.querySelector(`\.${selef.target_class}`);
+      		if(wrap && target) {
+      			selef.scrollParent = selef.getScrollParent();
+      			selef.scrollParent.addEventListener('scroll', selef.scrollHandler);
+      			clearInterval(setIntervalId);
+      		}
+      	}
+
         this.scrollHandler = function scrollHandlerOriginal(ev) {
           if (!this.isLoading) {
             clearTimeout(this.debounceTimer);
@@ -134,7 +145,6 @@
         }.bind(this);
 
         setTimeout(this.scrollHandler, 1);
-        this.scrollParent.addEventListener('scroll', this.scrollHandler);
 
         this.$on('$InfiniteLoading:loaded', (ev) => {
           this.isFirstLoad = false;
@@ -187,13 +197,7 @@
         */
         this.$watch('forceUseInfiniteWrapper', () => this.scrollParent = this.getScrollParent());
       };
-
-      waitForElement(`\.${this.wrap_class}`).then(()=> {
-        waitForElement(`\.${this.target_class}`).then(()=> {
-            init();
-        }).catch(console.error.bind(console));
-      }).catch(console.error.bind(console));
-
+      init();
     },
     /**
      * To adapt to keep-alive feature, but only work on Vue 2.2.0 and above, see: https://vuejs.org/v2/api/#keep-alive
@@ -214,7 +218,6 @@
       */
       attemptLoad(isContinuousCall) {
         const currentDistance = this.getCurrentDistance();
-
         console.log(currentDistance);
         if (!this.isComplete && currentDistance <= this.distance && (this.$el.offsetWidth + this.$el.offsetHeight) > 0) {
 
