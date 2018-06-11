@@ -1,6 +1,6 @@
 {
   "name": "vue-infinite-pull",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "vue-infinite-pull",
   "author": "Tkc <info@onga.jp>",
   "private": true,
@@ -17,8 +17,7 @@
   "dependencies": {
     "clean-webpack-plugin": "^0.1.19",
     "eslint-friendly-formatter": "^4.0.1",
-    "vue": "^2.5.2",
-    "vue-infinite-pull": "git://github.com/tkc/vue-infinite-pull.git#1.0.0"
+    "vue": "^2.5.2"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
