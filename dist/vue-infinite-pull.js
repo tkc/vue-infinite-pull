@@ -497,7 +497,9 @@ module.exports = function normalizeComponent (
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Spinner__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_wait_for_element__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_wait_for_element___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_wait_for_element__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Spinner__ = __webpack_require__(12);
 //
 //
 //
@@ -514,6 +516,7 @@ module.exports = function normalizeComponent (
 //
 //
 //
+
 
 /* eslint-disable no-console */
 
@@ -545,7 +548,7 @@ var ERRORS = {
   },
 
   components: {
-    Spinner: __WEBPACK_IMPORTED_MODULE_0__Spinner__["a" /* default */]
+    Spinner: __WEBPACK_IMPORTED_MODULE_1__Spinner__["a" /* default */]
   },
   computed: {
     isNoResults: {
@@ -580,6 +583,9 @@ var ERRORS = {
     target_class: {
       type: String
     },
+    wrap_class: {
+      type: String
+    },
     showSpinner: {
       type: Boolean,
       default: false
@@ -588,78 +594,87 @@ var ERRORS = {
   mounted: function mounted() {
     var _this = this;
 
-    this.scrollParent = this.getScrollParent();
-
-    this.scrollHandler = function scrollHandlerOriginal(ev) {
-      if (!this.isLoading) {
-        clearTimeout(this.debounceTimer);
-        if (ev && ev.constructor === Event) {
-          this.debounceTimer = setTimeout(this.attemptLoad, this.debounceDuration);
-        } else {
-          this.attemptLoad();
+    var init = function init() {
+      _this.scrollParent = _this.getScrollParent();
+      _this.scrollHandler = function scrollHandlerOriginal(ev) {
+        if (!this.isLoading) {
+          clearTimeout(this.debounceTimer);
+          if (ev && ev.constructor === Event) {
+            this.debounceTimer = setTimeout(this.attemptLoad, this.debounceDuration);
+          } else {
+            this.attemptLoad();
+          }
         }
-      }
-    }.bind(this);
+      }.bind(_this);
 
-    setTimeout(this.scrollHandler, 1);
-    this.scrollParent.addEventListener('scroll', this.scrollHandler);
-
-    this.$on('$InfiniteLoading:loaded', function (ev) {
-      _this.isFirstLoad = false;
-      if (_this.isLoading) {
-        _this.$nextTick(_this.attemptLoad.bind(null, true));
-      }
-      if (!ev || ev.target !== _this) {
-        console.warn(WARNINGS.STATE_CHANGER);
-      }
-    });
-
-    this.$on('$InfiniteLoading:complete', function (ev) {
-      _this.isLoading = false;
-      _this.isComplete = true;
-      // force re-complation computed properties to fix the problem of get slot text delay
-      _this.$nextTick(function () {
-        _this.$forceUpdate();
-      });
-      _this.scrollParent.removeEventListener('scroll', _this.scrollHandler);
-      if (!ev || ev.target !== _this) {
-        console.warn(WARNINGS.STATE_CHANGER);
-      }
-    });
-
-    this.$on('$InfiniteLoading:reset', function () {
-      _this.isLoading = false;
-      _this.isComplete = false;
-      _this.isFirstLoad = true;
-      _this.scrollParent.addEventListener('scroll', _this.scrollHandler);
       setTimeout(_this.scrollHandler, 1);
-    });
+      _this.scrollParent.addEventListener('scroll', _this.scrollHandler);
 
-    if (this.onInfinite) {
-      console.warn(WARNINGS.INFINITE_EVENT);
-    }
+      _this.$on('$InfiniteLoading:loaded', function (ev) {
+        _this.isFirstLoad = false;
+        if (_this.isLoading) {
+          _this.$nextTick(_this.attemptLoad.bind(null, true));
+        }
+        if (!ev || ev.target !== _this) {
+          console.warn(WARNINGS.STATE_CHANGER);
+        }
+      });
 
-    /**
-     * change state for this component, pass to the callback
-     */
-    this.stateChanger = {
-      loaded: function loaded() {
-        _this.$emit('$InfiniteLoading:loaded', { target: _this });
-      },
-      complete: function complete() {
-        _this.$emit('$InfiniteLoading:complete', { target: _this });
-      },
-      reset: function reset() {
-        _this.$emit('$InfiniteLoading:reset', { target: _this });
+      _this.$on('$InfiniteLoading:complete', function (ev) {
+        _this.isLoading = false;
+        _this.isComplete = true;
+        // force re-complation computed properties to fix the problem of get slot text delay
+        _this.$nextTick(function () {
+          _this.$forceUpdate();
+        });
+        _this.scrollParent.removeEventListener('scroll', _this.scrollHandler);
+        if (!ev || ev.target !== _this) {
+          console.warn(WARNINGS.STATE_CHANGER);
+        }
+      });
+
+      _this.$on('$InfiniteLoading:reset', function () {
+        _this.isLoading = false;
+        _this.isComplete = false;
+        _this.isFirstLoad = true;
+        _this.scrollParent.addEventListener('scroll', _this.scrollHandler);
+        setTimeout(_this.scrollHandler, 1);
+      });
+
+      if (_this.onInfinite) {
+        console.warn(WARNINGS.INFINITE_EVENT);
       }
+
+      /**
+      * change state for this component, pass to the callback
+      */
+      _this.stateChanger = {
+        loaded: function loaded() {
+          return _this.$emit('$InfiniteLoading:loaded', { target: _this });
+        },
+        complete: function complete() {
+          return _this.$emit('$InfiniteLoading:complete', { target: _this });
+        },
+        reset: function reset() {
+          return _this.$emit('$InfiniteLoading:reset', { target: _this });
+        }
+      };
+
+      /**
+      * watch for the
+      force-use-infinite-wrapper
+      property
+      */
+      _this.$watch('forceUseInfiniteWrapper', function () {
+        return _this.scrollParent = _this.getScrollParent();
+      });
     };
 
-    /**
-     * watch for the `force-use-infinite-wrapper` property
-     */
-    this.$watch('forceUseInfiniteWrapper', function () {
-      _this.scrollParent = _this.getScrollParent();
-    });
+    __WEBPACK_IMPORTED_MODULE_0_wait_for_element___default()('.' + this.wrap_class).then(function () {
+      __WEBPACK_IMPORTED_MODULE_0_wait_for_element___default()('.' + _this.target_class).then(function () {
+        init();
+      }).catch(console.error.bind(console));
+    }).catch(console.error.bind(console));
   },
 
   /**
@@ -685,6 +700,7 @@ var ERRORS = {
 
       var currentDistance = this.getCurrentDistance();
 
+      console.log(currentDistance);
       if (!this.isComplete && currentDistance <= this.distance && this.$el.offsetWidth + this.$el.offsetHeight > 0) {
 
         this.isLoading = true;
@@ -724,12 +740,14 @@ var ERRORS = {
       var _this3 = this;
 
       var getDistance = function getDistance(target) {
-        var infiniteElmOffsetTopFromBottom = document.querySelector('.' + _this3.target_class).getBoundingClientRect().bottom;
-        var scrollElmOffsetTopFromBottom = window.innerHeight;
-        return infiniteElmOffsetTopFromBottom - scrollElmOffsetTopFromBottom;
+        var tatgetBottom = document.querySelector('.' + _this3.target_class).getBoundingClientRect().bottom;
+        var wrapBottom = document.querySelector('.' + _this3.wrap_class).getBoundingClientRect().bottom;
+        return tatgetBottom - wrapBottom;
       };
+
+      var wrap = document.querySelector('.' + this.wrap_class);
       var target = document.querySelector('.' + this.target_class);
-      return target ? getDistance() : 99999999;
+      return wrap && target ? getDistance() : 99999999;
     },
 
     /**
@@ -740,17 +758,7 @@ var ERRORS = {
     getScrollParent: function getScrollParent() {
       var elm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.$el;
 
-      var result = void 0;
-
-      if (elm.tagName === 'BODY') {
-        result = window;
-      } else if (!this.forceUseInfiniteWrapper && ['scroll', 'auto'].indexOf(getComputedStyle(elm).overflowY) > -1) {
-        result = elm;
-      } else if (elm.hasAttribute('infinite-wrapper') || elm.hasAttribute('data-infinite-wrapper')) {
-        result = elm;
-      }
-
-      return result || this.getScrollParent(elm.parentNode);
+      return document.querySelector('.' + this.wrap_class);
     }
   },
   destroyed: function destroyed() {
@@ -854,7 +862,7 @@ var SPINNERS = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_InfinitePull_vue__ = __webpack_require__(3);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_f370c2aa_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_113d34ea_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__ = __webpack_require__(16);
 function injectStyle (ssrContext) {
   __webpack_require__(6)
 }
@@ -869,12 +877,12 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-f370c2aa"
+var __vue_scopeId__ = "data-v-113d34ea"
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_InfinitePull_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_f370c2aa_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_113d34ea_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_InfinitePull_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -895,7 +903,7 @@ var content = __webpack_require__(7);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(1)("4d8c0f51", content, true, {});
+var update = __webpack_require__(1)("7c98d76c", content, true, {});
 
 /***/ }),
 /* 7 */
@@ -906,7 +914,7 @@ exports = module.exports = __webpack_require__(0)(false);
 
 
 // module
-exports.push([module.i, ".infinite-loading-container[data-v-f370c2aa]{clear:both;text-align:center}.infinite-loading-container[data-v-f370c2aa] [class^=loading-]{display:inline-block;margin:15px 0;width:28px;height:28px;font-size:28px;line-height:28px;border-radius:50%}.infinite-status-prompt[data-v-f370c2aa]{color:#666;font-size:14px;text-align:center;padding:10px 0}", ""]);
+exports.push([module.i, ".infinite-loading-container[data-v-113d34ea]{clear:both;text-align:center}.infinite-loading-container[data-v-113d34ea] [class^=loading-]{display:inline-block;margin:15px 0;width:28px;height:28px;font-size:28px;line-height:28px;border-radius:50%}.infinite-status-prompt[data-v-113d34ea]{color:#666;font-size:14px;text-align:center;padding:10px 0}", ""]);
 
 // exports
 
@@ -946,14 +954,130 @@ module.exports = function listToStyles (parentId, list) {
 
 /***/ }),
 /* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+// LICENSE : MIT
+
+var waitByTimer = __webpack_require__(10);
+var waitByObserver = __webpack_require__(11);
+/**
+ * Wait until an element that is matched the selector is visible.
+ * @param {string} selector the css selector
+ * @param {number} timeout the timeout is millisecond. default:2000ms
+ * @returns {Promise}
+ */
+module.exports = function waitForElement(selector, timeout) {
+    if (typeof Element.prototype.matches !== "undefined" && typeof MutationObserver !== "undefined") {
+        return waitByObserver(selector, timeout);
+    }
+    // fallback
+    return waitByTimer(selector, timeout);
+};
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+// LICENSE : MIT
+
+/**
+ * @param {string} selector the css selector
+ * @param {number} timeout the timeout is millisecond
+ * @returns {Promise}
+ */
+function waitForElement(selector, timeout) {
+    var timeoutOption = timeout || 2000;// 2s
+    var loopTime = 100;
+    var tryCount = 0;
+    var limitCount = timeoutOption / loopTime;
+    var limitCountOption = (limitCount < 1) ? 1 : limitCount;
+
+    function tryCheck(resolve, reject) {
+        if (tryCount < limitCountOption) {
+            var element = document.querySelector(selector);
+            if (element != null) {
+                return resolve(element);
+            }
+            setTimeout(function () {
+                tryCheck(resolve, reject);
+            }, loopTime);
+        } else {
+            reject(new Error("Not found element match the selector:" + selector));
+        }
+        tryCount++;
+    }
+
+    return new Promise(function (resolve, reject) {
+        tryCheck(resolve, reject);
+    });
+}
+module.exports = waitForElement;
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+// LICENSE : MIT
+
+/**
+ * @param {string} selector the css selector
+ * @param {number} timeout the timeout is millisecond
+ * @returns {Promise}
+ */
+function waitForElement(selector, timeout) {
+    var _resolve, _reject;
+    var promise = new Promise(function (resolve, reject) {
+        _resolve = resolve;
+        _reject = reject;
+    });
+
+
+    var observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            for (var i = 0; i < mutation.addedNodes.length; i++) {
+                var addedNode = mutation.addedNodes[i];
+                if (typeof addedNode.matches === "function" && addedNode.matches(selector)) {
+                    _resolve(addedNode);
+                    observer.disconnect();
+                    clearTimeout(timerId);
+                }
+            }
+        });
+    });
+    // first time check
+    var element = document.querySelector(selector);
+    if (element != null) {
+        _resolve(element);
+        return promise;
+    }
+    var timeoutOption = timeout || 2000;// 2s
+    // start
+    observer.observe(document.body, {
+        childList: true, subtree: true
+    });
+    // timeout
+    var timerId = setTimeout(function () {
+        _reject(new Error("Not found element match the selector:" + selector));
+        observer.disconnect();
+    }, timeoutOption);
+
+    return promise;
+}
+module.exports = waitForElement;
+
+/***/ }),
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_Spinner_vue__ = __webpack_require__(4);
 /* unused harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7e108854_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Spinner_vue__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7e108854_hasScoped_true_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_Spinner_vue__ = __webpack_require__(15);
 function injectStyle (ssrContext) {
-  __webpack_require__(10)
+  __webpack_require__(13)
 }
 var normalizeComponent = __webpack_require__(2)
 /* script */
@@ -982,20 +1106,20 @@ var Component = normalizeComponent(
 
 
 /***/ }),
-/* 10 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(11);
+var content = __webpack_require__(14);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
 var update = __webpack_require__(1)("ec081464", content, true, {});
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(false);
@@ -1009,7 +1133,7 @@ exports.push([module.i, ".loading-wave-dots[data-v-7e108854]{position:relative}.
 
 
 /***/ }),
-/* 12 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1019,7 +1143,7 @@ var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ __webpack_exports__["a"] = (esExports);
 
 /***/ }),
-/* 13 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

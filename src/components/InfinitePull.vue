@@ -15,6 +15,7 @@
 </template>
 
 <script>
+	import waitForElement from 'wait-for-element';
 	/* eslint-disable no-console */
 	import Spinner from './Spinner';
 	const LOOP_CHECK_TIMEOUT = 1000; // the timeout for check infinite loop
@@ -110,84 +111,89 @@
        target_class: {
         type: String,
       },
+      wrap_class: {
+        type: String,
+      },
       showSpinner: {
         type: Boolean,
         default: false,
       },
     },
     mounted() {
-      this.scrollParent = this.getScrollParent();
-
-      this.scrollHandler = function scrollHandlerOriginal(ev) {
-        if (!this.isLoading) {
-          clearTimeout(this.debounceTimer);
-          if (ev && ev.constructor === Event) {
-            this.debounceTimer = setTimeout(this.attemptLoad, this.debounceDuration);
-          } else {
-            this.attemptLoad();
+      const init = () =>{
+        this.scrollParent = this.getScrollParent();
+        this.scrollHandler = function scrollHandlerOriginal(ev) {
+          if (!this.isLoading) {
+            clearTimeout(this.debounceTimer);
+            if (ev && ev.constructor === Event) {
+              this.debounceTimer = setTimeout(this.attemptLoad, this.debounceDuration);
+            } else {
+              this.attemptLoad();
+            }
           }
-        }
-      }.bind(this);
+        }.bind(this);
 
-      setTimeout(this.scrollHandler, 1);
-      this.scrollParent.addEventListener('scroll', this.scrollHandler);
-
-      this.$on('$InfiniteLoading:loaded', (ev) => {
-        this.isFirstLoad = false;
-        if (this.isLoading) {
-          this.$nextTick(this.attemptLoad.bind(null, true));
-        }
-        if (!ev || ev.target !== this) {
-          console.warn(WARNINGS.STATE_CHANGER);
-        }
-      });
-
-      this.$on('$InfiniteLoading:complete', (ev) => {
-        this.isLoading = false;
-        this.isComplete = true;
-        // force re-complation computed properties to fix the problem of get slot text delay
-        this.$nextTick(() => {
-          this.$forceUpdate();
-        });
-        this.scrollParent.removeEventListener('scroll', this.scrollHandler);
-        if (!ev || ev.target !== this) {
-          console.warn(WARNINGS.STATE_CHANGER);
-        }
-      });
-
-      this.$on('$InfiniteLoading:reset', () => {
-        this.isLoading = false;
-        this.isComplete = false;
-        this.isFirstLoad = true;
-        this.scrollParent.addEventListener('scroll', this.scrollHandler);
         setTimeout(this.scrollHandler, 1);
-      });
+        this.scrollParent.addEventListener('scroll', this.scrollHandler);
 
-      if (this.onInfinite) {
-        console.warn(WARNINGS.INFINITE_EVENT);
-      }
+        this.$on('$InfiniteLoading:loaded', (ev) => {
+          this.isFirstLoad = false;
+          if (this.isLoading) {
+            this.$nextTick(this.attemptLoad.bind(null, true));
+          }
+          if (!ev || ev.target !== this) {
+            console.warn(WARNINGS.STATE_CHANGER);
+          }
+        });
 
-      /**
-       * change state for this component, pass to the callback
-       */
-      this.stateChanger = {
-        loaded: () => {
-          this.$emit('$InfiniteLoading:loaded', { target: this });
-        },
-        complete: () => {
-          this.$emit('$InfiniteLoading:complete', { target: this });
-        },
-        reset: () => {
-          this.$emit('$InfiniteLoading:reset', { target: this });
-        },
+        this.$on('$InfiniteLoading:complete', (ev) => {
+          this.isLoading = false;
+          this.isComplete = true;
+          // force re-complation computed properties to fix the problem of get slot text delay
+          this.$nextTick(() => {
+            this.$forceUpdate();
+          });
+          this.scrollParent.removeEventListener('scroll', this.scrollHandler);
+          if (!ev || ev.target !== this) {
+            console.warn(WARNINGS.STATE_CHANGER);
+          }
+        });
+
+        this.$on('$InfiniteLoading:reset', () => {
+          this.isLoading = false;
+          this.isComplete = false;
+          this.isFirstLoad = true;
+          this.scrollParent.addEventListener('scroll', this.scrollHandler);
+          setTimeout(this.scrollHandler, 1);
+        });
+
+        if (this.onInfinite) {
+          console.warn(WARNINGS.INFINITE_EVENT);
+       }
+
+        /**
+        * change state for this component, pass to the callback
+        */
+        this.stateChanger = {
+          loaded: () => this.$emit('$InfiniteLoading:loaded', { target: this }),
+          complete: () => this.$emit('$InfiniteLoading:complete', { target: this }),
+          reset: () => this.$emit('$InfiniteLoading:reset', { target: this }),
+        };
+
+        /**
+        * watch for the
+		force-use-infinite-wrapper
+		property
+        */
+        this.$watch('forceUseInfiniteWrapper', () => this.scrollParent = this.getScrollParent());
       };
 
-      /**
-       * watch for the `force-use-infinite-wrapper` property
-       */
-      this.$watch('forceUseInfiniteWrapper', () => {
-        this.scrollParent = this.getScrollParent();
-      });
+      waitForElement(`\.${this.wrap_class}`).then(()=> {
+        waitForElement(`\.${this.target_class}`).then(()=> {
+            init();
+        }).catch(console.error.bind(console));
+      }).catch(console.error.bind(console));
+
     },
     /**
      * To adapt to keep-alive feature, but only work on Vue 2.2.0 and above, see: https://vuejs.org/v2/api/#keep-alive
@@ -209,6 +215,7 @@
       attemptLoad(isContinuousCall) {
         const currentDistance = this.getCurrentDistance();
 
+        console.log(currentDistance);
         if (!this.isComplete && currentDistance <= this.distance && (this.$el.offsetWidth + this.$el.offsetHeight) > 0) {
 
           this.isLoading = true;
@@ -245,12 +252,14 @@
       */
       getCurrentDistance() {
       	const getDistance = target =>{
-      	  const infiniteElmOffsetTopFromBottom = document.querySelector(`\.${this.target_class}`).getBoundingClientRect().bottom;
-          const scrollElmOffsetTopFromBottom =  window.innerHeight;
-          return (infiniteElmOffsetTopFromBottom - scrollElmOffsetTopFromBottom);
+      	  const tatgetBottom = document.querySelector(`\.${this.target_class}`).getBoundingClientRect().bottom;
+          const wrapBottom = document.querySelector(`\.${this.wrap_class}`).getBoundingClientRect().bottom;
+          return (tatgetBottom - wrapBottom);
       	}
+
+      	const wrap = document.querySelector(`\.${this.wrap_class}`);
         const target = document.querySelector(`\.${this.target_class}`);
-        return target ? getDistance() : 99999999;
+        return wrap && target ? getDistance() : 99999999;
       },
       /**
       * get the first scroll parent of an element
@@ -258,17 +267,7 @@
       * @return {DOM}        the first scroll parent
       */
       getScrollParent(elm = this.$el) {
-        let result;
-
-        if (elm.tagName === 'BODY') {
-          result = window;
-        } else if (!this.forceUseInfiniteWrapper && ['scroll', 'auto'].indexOf(getComputedStyle(elm).overflowY) > -1) {
-          result = elm;
-        } else if (elm.hasAttribute('infinite-wrapper') || elm.hasAttribute('data-infinite-wrapper')) {
-          result = elm;
-        }
-
-        return result || this.getScrollParent(elm.parentNode);
+      	return  document.querySelector(`\.${this.wrap_class}`);
       },
     },
     destroyed() {
